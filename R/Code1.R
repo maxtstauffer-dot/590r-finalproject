@@ -39,5 +39,29 @@ tbl_summary(
 	modify_spanning_header(all_stat_cols() ~ "**Identify as a Midwesterner**")
 
 
+#Fit a regression and present well-formatted results from the regression (1 pt)
+
+#Needed to recode Male and Female as 0 and 1 (Male=0, Female=1)
+nlsy <- nlsy %>%
+	mutate(gender_bin = ifelse(gender == "Female", 1, 0))
+
+
+tbl_uvregression(
+	nlsy,
+	y = gender_bin,
+	include = c(
+		gender_bin, age, income, education
+	),
+	method = glm,
+	method.args = list(family = binomial()),
+	exponentiate = TRUE
+)
+
+
+#Create a figure (1 pt)
+
+
+
+
 
 
