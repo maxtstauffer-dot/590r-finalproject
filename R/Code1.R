@@ -26,6 +26,18 @@ tbl_summary(
 	by = midwest_identity,
 	include = c(location, midwest_states,
 							gender, age, income, education),
-	type = list(midwest_states ~ "categorical"))
+	type = list(midwest_states ~ "categorical"),
+	label = list(
+		midwest_states ~ "Midwest states picked",
+		gender ~ "Gender",
+		age ~ "Age Group",
+		income ~ "Household Income",
+		education ~ "Education Level",
+		location ~ "Census Region"
+	),
+	missing_text = "Missing") %>%
+	modify_spanning_header(all_stat_cols() ~ "**Identify as a Midwesterner**")
+
+
 
 
