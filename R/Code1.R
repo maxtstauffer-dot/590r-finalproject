@@ -60,6 +60,14 @@ tbl_uvregression(
 
 #Create a figure (1 pt)
 
+barplot(table(nlsy$age),
+				main = "Age Distribution",
+				col = "lightblue",
+				ylab = "Count")
+
+#Write and use a function that does something with the data (1 pt)
+
+
 
 
 
