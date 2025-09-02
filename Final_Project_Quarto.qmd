@@ -6,14 +6,17 @@ format: html
 
 1. Data was cleaned using Excel
 2. Load in proper packages
-3. Making "Here" package work
+3. Load in correct data using here package
 ```{r}
-setwd("data")
-```
-4. Load in correct data
-```{r}
+
+
+
 library(readxl)
 nlsy_short <- read_excel(here::here("data", "cleaned_internet_midwest_data.xlsx"))
+```
+4. Setting the working directory
+```{r}
+setwd("data")
 ```
 5. Split by space and nnest
 ```{r}
@@ -27,7 +30,7 @@ OBJECTIVE 1: Create a {gtsummary} table of descriptive statistics about your dat
 
 ```{r}
 library(gtsummary)
-tbl_summary(
+table1 <- tbl_summary(
 	nlsy,
 	by = midwest_identity,
 	include = c(location, midwest_states,
@@ -43,6 +46,8 @@ tbl_summary(
 	),
 	missing_text = "Missing") %>%
 	modify_spanning_header(all_stat_cols() ~ "**Identify as a Midwesterner**")
+
+print(table1)
 ```
 
 OBJECTIVE 2: Fit a regression and present well-formatted results from the regression (1 pt)
@@ -70,10 +75,13 @@ OBJECTIVE 3:Create a figure (1 pt)
 
 ```{r}
 
-barplot(table(nlsy$age),
+barplot <- barplot(table(nlsy$age),
 				main = "Age Distribution",
 				col = "lightblue",
-				ylab = "Count")
+				border = "darkgreen",
+				ylab = "Count",
+				xlab = "Age Group",
+				las = 1)
 
 ```
 See what values are in the midwest_identity variable
@@ -117,19 +125,34 @@ summary_by_income("Midwest")
 OBJECTIVE 5: Create and render a quarto document that includes at least:
 
 (a) The table, regression results, and figure, with appropriate captions (1 pt)
+	This was done
+
 (b) Inline R code in at least 2 places, 1 pulling a statistic from a table (i.e., using gtsummary::inline_text()) and 1 printing something else (like we did with the mean age in the example) (1 pt)
+	There were `r nrow(nlsy_short)` respondents to the survey, with most participants responding `r names(which.max(table(nlsy$midwest_identity)))`. Among those who responded "Not at all" when asked if they identify as midwestern, most of them were women (`r inline_text(table1, variable = "Gender$Female", column = "Not at all")`).
+
 (c) Cross-references to a table and a figure at least once each (1 pt)
+@barplot contains a histogram and @table1 a table.
+
 (d) A brief description of the data, including its source (1 pt)
 
+The data used for this analysis is from github (https://github.com/fivethirtyeight/data/blob/master/region-survey/MIDWEST.csv) and it includes the the survey data collected from people from various states as to whether they themselves identify as midwestern. It includees demographic data (age, income, education, location, zip code) as well as their location (region), if they identify as midwestern, and what states they consider to be midwestern.
 
 
 OBJECTIVE 6: Read in a dataset and save a file (can be data, table, figure, etc.) Use the {here} package every time you refer to file paths (at least twice) (1 pt)
 
 1. Done at the top to read in the data
 2. Done below to save the figure I created
+
 ```{r}
+png(
+  filename = here::here("plots", "age_distribution.png"),
+  width = 800, 
+  height = 600,
+)
 
 ```
+
+
 
 OBJECTIVE 7: Commit and push your work to GitHub as you go (1 pt)
 
