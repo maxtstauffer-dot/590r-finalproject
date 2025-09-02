@@ -65,7 +65,45 @@ barplot(table(nlsy$age),
 				col = "lightblue",
 				ylab = "Count")
 
+
+#See what values are in the midwest_identity variable
+unique(nlsy$midwest_identity)
+
+#mutate midwest_identity variable for numeric analysis
+nlsy <- nlsy %>%
+	mutate(midwest_identity_num = case_when(
+		midwest_identity == "Not at all" ~ 0,
+		midwest_identity == "Not much"   ~ 1,
+		midwest_identity == "Some"       ~ 2,
+		midwest_identity == "A lot"      ~ 3,
+	))
+
+#mutate age variable for analysis
+nlsy <- nlsy %>%
+	mutate(age_num = as.numeric(factor(nlsy$age,
+														levels = c("< 18","18-29","30-44","45-60","> 60"),
+														ordered = TRUE)))
+
 #Write and use a function that does something with the data (1 pt)
+#I decided to write the median midwest_identity, age, and income, dependent on which region_identity you input.
+
+summary_by_income <- function(region, data = nlsy) {
+	data %>%
+		filter(region_identity == region) %>%
+			summarize(mean_midwest_identity = mean(midwest_identity_num, na.rm = TRUE),
+								median_age = median(age_num, na.rm = TRUE),
+								median_income = median (income, na.rm = TRUE))
+}
+
+summary_by_income("Midwest")
+
+
+
+
+
+
+
+
 
 
 
