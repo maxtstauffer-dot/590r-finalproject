@@ -1,0 +1,146 @@
+---
+title: "Final_Project_Quarto"
+name: Max Stauffer
+format: html
+---
+
+1. Data was cleaned using Excel
+2. Load in proper packages
+3. Making "Here" package work
+```{r}
+setwd("data")
+```
+4. Load in correct data
+```{r}
+library(readxl)
+nlsy_short <- read_excel(here::here("data", "cleaned_internet_midwest_data.xlsx"))
+```
+5. Split by space and nnest
+```{r}
+library(tidyverse)
+nlsy <- nlsy_short %>%
+	mutate(midwest_states = str_split(midwest_states, " ")) %>%
+	unnest(midwest_states)
+```
+
+OBJECTIVE 1: Create a {gtsummary} table of descriptive statistics about your data (1 pt)
+
+```{r}
+library(gtsummary)
+tbl_summary(
+	nlsy,
+	by = midwest_identity,
+	include = c(location, midwest_states,
+							gender, age, income, education),
+	type = list(midwest_states ~ "categorical"),
+	label = list(
+		midwest_states ~ "Midwest states picked",
+		gender ~ "Gender",
+		age ~ "Age Group",
+		income ~ "Household Income",
+		education ~ "Education Level",
+		location ~ "Census Region"
+	),
+	missing_text = "Missing") %>%
+	modify_spanning_header(all_stat_cols() ~ "**Identify as a Midwesterner**")
+```
+
+OBJECTIVE 2: Fit a regression and present well-formatted results from the regression (1 pt)
+
+Needed to recode Male and Female as 0 and 1 (Male=0, Female=1)
+```{r}
+nlsy <- nlsy %>%
+	mutate(gender_bin = ifelse(gender == "Female", 1, 0))
+
+
+tbl_uvregression(
+	nlsy,
+	y = gender_bin,
+	include = c(
+		gender_bin, age, income, education
+	),
+	method = glm,
+	method.args = list(family = binomial()),
+	exponentiate = TRUE
+)
+
+```
+
+OBJECTIVE 3:Create a figure (1 pt)
+
+```{r}
+
+barplot(table(nlsy$age),
+				main = "Age Distribution",
+				col = "lightblue",
+				ylab = "Count")
+
+```
+See what values are in the midwest_identity variable
+```{r}
+unique(nlsy$midwest_identity)
+```
+mutate midwest_identity variable for numeric analysis
+```{r}
+nlsy <- nlsy %>%
+	mutate(midwest_identity_num = case_when(
+		midwest_identity == "Not at all" ~ 0,
+		midwest_identity == "Not much"   ~ 1,
+		midwest_identity == "Some"       ~ 2,
+		midwest_identity == "A lot"      ~ 3,
+	))
+```
+mutate age variable for analysis
+```{r}
+nlsy <- nlsy %>%
+	mutate(age_num = as.numeric(factor(nlsy$age,
+														levels = c("< 18","18-29","30-44","45-60","> 60"),
+														ordered = TRUE)))
+```
+
+OBJECTIVE 4:Write and use a function that does something with the data (1 pt)
+
+		I decided to write the median midwest_identity, age, and income, dependent on which region_identity you input.
+```{r}
+summary_by_income <- function(region, data = nlsy) {
+	data %>%
+		filter(region_identity == region) %>%
+			summarize(mean_midwest_identity = mean(midwest_identity_num, na.rm = TRUE),
+								median_age = median(age_num, na.rm = TRUE),
+								median_income = median (income, na.rm = TRUE))
+}
+
+summary_by_income("Midwest")
+
+```
+
+OBJECTIVE 5: Create and render a quarto document that includes at least:
+
+(a) The table, regression results, and figure, with appropriate captions (1 pt)
+(b) Inline R code in at least 2 places, 1 pulling a statistic from a table (i.e., using gtsummary::inline_text()) and 1 printing something else (like we did with the mean age in the example) (1 pt)
+(c) Cross-references to a table and a figure at least once each (1 pt)
+(d) A brief description of the data, including its source (1 pt)
+
+
+
+OBJECTIVE 6: Read in a dataset and save a file (can be data, table, figure, etc.) Use the {here} package every time you refer to file paths (at least twice) (1 pt)
+
+1. Done at the top to read in the data
+2. Done below to save the figure I created
+```{r}
+
+```
+
+OBJECTIVE 7: Commit and push your work to GitHub as you go (1 pt)
+
+This was done. 
+
+OBJECTIVE 8: In a README file, include any notes necessary for us to easily reproduce your analysis (e.g., “Run script.R and then render document.qmd”) as well as some information about your data (1 pt)
+
+XXXXX
+
+
+
+
+
+
