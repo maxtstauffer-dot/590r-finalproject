@@ -30,6 +30,9 @@ OBJECTIVE 1: Create a {gtsummary} table of descriptive statistics about your dat
 
 ```{r}
 library(gtsummary)
+
+#| label: table1
+
 table1 <- tbl_summary(
 	nlsy,
 	by = midwest_identity,
@@ -47,7 +50,8 @@ table1 <- tbl_summary(
 	missing_text = "Missing") %>%
 	modify_spanning_header(all_stat_cols() ~ "**Identify as a Midwesterner**")
 
-print(table1)
+table1
+
 ```
 
 OBJECTIVE 2: Fit a regression and present well-formatted results from the regression (1 pt)
@@ -74,8 +78,10 @@ tbl_uvregression(
 OBJECTIVE 3:Create a figure (1 pt)
 
 ```{r}
+#| label: barplot 
+#| fig-cap: "Age Distribution of Respondents"
 
-barplot <- barplot(table(nlsy$age),
+	barplot <- barplot(table(nlsy$age),
 				main = "Age Distribution",
 				col = "lightblue",
 				border = "darkgreen",
@@ -84,9 +90,10 @@ barplot <- barplot(table(nlsy$age),
 				las = 1)
 
 ```
-See what values are in the midwest_identity variable
+See what values are in the midwest_identity variable and what the most common is
 ```{r}
 unique(nlsy$midwest_identity)
+most_common <- names(which.max(table(nlsy$midwest_identity)))
 ```
 mutate midwest_identity variable for numeric analysis
 ```{r}
@@ -128,7 +135,9 @@ OBJECTIVE 5: Create and render a quarto document that includes at least:
 	This was done
 
 (b) Inline R code in at least 2 places, 1 pulling a statistic from a table (i.e., using gtsummary::inline_text()) and 1 printing something else (like we did with the mean age in the example) (1 pt)
-	There were `r nrow(nlsy_short)` respondents to the survey, with most participants responding `r names(which.max(table(nlsy$midwest_identity)))`. Among those who responded "Not at all" when asked if they identify as midwestern, most of them were women (`r inline_text(table1, variable = "Gender$Female", column = "Not at all")`).
+	There were `r nrow(nlsy_short)` respondents to the survey, with most participants responding 
+`r most_common` to the question 'Do you consider yourself part of the Midwest?'. Among the respondents who responded `r most_common`, `r inline_text(table1, variable = "gender", column = most_common, pattern = "{p}%")` were men.
+
 
 (c) Cross-references to a table and a figure at least once each (1 pt)
 @barplot contains a histogram and @table1 a table.
@@ -144,11 +153,17 @@ OBJECTIVE 6: Read in a dataset and save a file (can be data, table, figure, etc.
 2. Done below to save the figure I created
 
 ```{r}
-png(
-  filename = here::here("plots", "age_distribution.png"),
-  width = 800, 
-  height = 600,
-)
+png(filename = here::here("plots", "age_distribution.png"), width = 800, height = 600)
+
+barplot(table(nlsy$age),
+        main = "Age Distribution",
+        col = "lightblue",
+        border = "darkgreen",
+        ylab = "Count",
+        xlab = "Age Group",
+        las = 1)
+
+dev.off()
 
 ```
 
@@ -160,8 +175,7 @@ This was done.
 
 OBJECTIVE 8: In a README file, include any notes necessary for us to easily reproduce your analysis (e.g., “Run script.R and then render document.qmd”) as well as some information about your data (1 pt)
 
-XXXXX
-
+This information is in the README file. 
 
 
 

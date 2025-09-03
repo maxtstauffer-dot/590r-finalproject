@@ -1,0 +1,9 @@
+---
+title: "README"
+format: html
+---
+Instruction:
+The quarto document title "Final_Project_Quarto" has all the necessary answers and code. The Data file has the raw and cleaned data. The R file has the beginnings of the code until I switched over to the quarto. The plots folder has the plot which I created with my second "here" statement.
+
+Summary of data:
+The data was from github (the link is in the Final_Project_Quarto document), and it includes information on roughly 3000 survey participants who answered the following questions: "How often do you consider yourself part of the midwest?" and "what states are part of the midwest?" and demographic information. 
