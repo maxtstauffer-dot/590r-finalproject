@@ -4,9 +4,10 @@ name: Max Stauffer
 format: html
 ---
 
-1. Data was cleaned using Excel
-2. Load in proper packages
-3. Load in correct data using here package
+1.  Data was cleaned using Excel
+2.  Load in proper packages
+3.  Load in correct data using here package
+
 ```{r}
 
 
@@ -14,13 +15,18 @@ format: html
 library(readxl)
 nlsy_short <- read_excel(here::here("data", "cleaned_internet_midwest_data.xlsx"))
 ```
-4. Setting the working directory
+
+4.  Setting the working directory
+
 ```{r}
 setwd("data")
 ```
-5. Split by space and nnest
+
+5.  Split by space and nnest
+
 ```{r}
 library(tidyverse)
+library(gtsummary)
 nlsy <- nlsy_short %>%
 	mutate(midwest_states = str_split(midwest_states, " ")) %>%
 	unnest(midwest_states)
@@ -29,34 +35,36 @@ nlsy <- nlsy_short %>%
 OBJECTIVE 1: Create a {gtsummary} table of descriptive statistics about your data (1 pt)
 
 ```{r}
-library(gtsummary)
+#| label: tbl-one
+#| tbl-cap: "Descriptive statistics by Midwest identity"
 
-#| label: table1
+tbl_one <- tbl_summary(
+  nlsy,
+  by = midwest_identity,
+  include = c(location, midwest_states, gender, age, income, education),
+  type = list(midwest_states ~ "categorical"),
+  label = list(
+    midwest_states ~ "Midwest states picked",
+    gender ~ "Gender",
+    age ~ "Age Group",
+    income ~ "Household Income",
+    education ~ "Education Level",
+    location ~ "Census Region"
+  ),
+  missing_text = "Missing"
+) %>%
+  modify_spanning_header(all_stat_cols() ~ "**Identify as a Midwesterner**")
 
-table1 <- tbl_summary(
-	nlsy,
-	by = midwest_identity,
-	include = c(location, midwest_states,
-							gender, age, income, education),
-	type = list(midwest_states ~ "categorical"),
-	label = list(
-		midwest_states ~ "Midwest states picked",
-		gender ~ "Gender",
-		age ~ "Age Group",
-		income ~ "Household Income",
-		education ~ "Education Level",
-		location ~ "Census Region"
-	),
-	missing_text = "Missing") %>%
-	modify_spanning_header(all_stat_cols() ~ "**Identify as a Midwesterner**")
-
-table1
-
+tbl_one
 ```
+
+
+
 
 OBJECTIVE 2: Fit a regression and present well-formatted results from the regression (1 pt)
 
 Needed to recode Male and Female as 0 and 1 (Male=0, Female=1)
+
 ```{r}
 nlsy <- nlsy %>%
 	mutate(gender_bin = ifelse(gender == "Female", 1, 0))
@@ -78,7 +86,7 @@ tbl_uvregression(
 OBJECTIVE 3:Create a figure (1 pt)
 
 ```{r}
-#| label: barplot 
+#| label: fig-one 
 #| fig-cap: "Age Distribution of Respondents"
 
 	barplot <- barplot(table(nlsy$age),
@@ -90,12 +98,16 @@ OBJECTIVE 3:Create a figure (1 pt)
 				las = 1)
 
 ```
+
 See what values are in the midwest_identity variable and what the most common is
+
 ```{r}
 unique(nlsy$midwest_identity)
 most_common <- names(which.max(table(nlsy$midwest_identity)))
 ```
+
 mutate midwest_identity variable for numeric analysis
+
 ```{r}
 nlsy <- nlsy %>%
 	mutate(midwest_identity_num = case_when(
@@ -105,7 +117,9 @@ nlsy <- nlsy %>%
 		midwest_identity == "A lot"      ~ 3,
 	))
 ```
+
 mutate age variable for analysis
+
 ```{r}
 nlsy <- nlsy %>%
 	mutate(age_num = as.numeric(factor(nlsy$age,
@@ -115,7 +129,10 @@ nlsy <- nlsy %>%
 
 OBJECTIVE 4:Write and use a function that does something with the data (1 pt)
 
-		I decided to write the median midwest_identity, age, and income, dependent on which region_identity you input.
+```         
+    I decided to write the median midwest_identity, age, and income, dependent on which region_identity you input.
+```
+
 ```{r}
 summary_by_income <- function(region, data = nlsy) {
 	data %>%
@@ -131,26 +148,20 @@ summary_by_income("Midwest")
 
 OBJECTIVE 5: Create and render a quarto document that includes at least:
 
-(a) The table, regression results, and figure, with appropriate captions (1 pt)
-	This was done
+(a) The table, regression results, and figure, with appropriate captions (1 pt) This was done
 
-(b) Inline R code in at least 2 places, 1 pulling a statistic from a table (i.e., using gtsummary::inline_text()) and 1 printing something else (like we did with the mean age in the example) (1 pt)
-	There were `r nrow(nlsy_short)` respondents to the survey, with most participants responding 
-`r most_common` to the question 'Do you consider yourself part of the Midwest?'. Among the respondents who responded `r most_common`, `r inline_text(table1, variable = "gender", column = most_common, pattern = "{p}%")` were men.
+(b) Inline R code in at least 2 places, 1 pulling a statistic from a table (i.e., using gtsummary::inline_text()) and 1 printing something else (like we did with the mean age in the example) (1 pt) There were `r nrow(nlsy_short)` respondents to the survey, with most participants responding `r most_common` to the question 'Do you consider yourself part of the Midwest?'. Among the respondents who responded `r most_common`, `r inline_text(tbl_one, variable = "gender", level = "Male", column = most_common, pattern = "{p}%")` were men.
 
-
-(c) Cross-references to a table and a figure at least once each (1 pt)
-@barplot contains a histogram and @table1 a table.
+(c) Cross-references to a table and a figure at least once each (1 pt) @fig-one contains a histogram and @tbl-one a table.
 
 (d) A brief description of the data, including its source (1 pt)
 
-The data used for this analysis is from github (https://github.com/fivethirtyeight/data/blob/master/region-survey/MIDWEST.csv) and it includes the the survey data collected from people from various states as to whether they themselves identify as midwestern. It includees demographic data (age, income, education, location, zip code) as well as their location (region), if they identify as midwestern, and what states they consider to be midwestern.
-
+The data used for this analysis is from github (https://github.com/fivethirtyeight/data/blob/master/region-survey/MIDWEST.csv) and it includes the the survey data collected from people from various states as to whether they themselves identify as midwestern. It includes demographic data (age, income, education, location, zip code) as well as their location (region), if they identify as midwestern, and what states they consider to be midwestern.
 
 OBJECTIVE 6: Read in a dataset and save a file (can be data, table, figure, etc.) Use the {here} package every time you refer to file paths (at least twice) (1 pt)
 
-1. Done at the top to read in the data
-2. Done below to save the figure I created
+1.  Done at the top to read in the data
+2.  Done below to save the figure I created
 
 ```{r}
 png(filename = here::here("plots", "age_distribution.png"), width = 800, height = 600)
@@ -167,17 +178,10 @@ dev.off()
 
 ```
 
-
-
 OBJECTIVE 7: Commit and push your work to GitHub as you go (1 pt)
 
-This was done. 
+This was done.
 
 OBJECTIVE 8: In a README file, include any notes necessary for us to easily reproduce your analysis (e.g., “Run script.R and then render document.qmd”) as well as some information about your data (1 pt)
 
-This information is in the README file. 
-
-
-
-
-
+This information is in the README file.
